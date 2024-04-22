@@ -39,7 +39,22 @@ class Snake:
             elif index == len(self.body) - 1:
                 screen.blit(self.tail,block_rect)
             else:
-                pygame.draw.rect(screen, (183,111,122), block_rect)
+                previous_block_relation = block - self.body[index + 1]
+                next_block_relation = block - self.body[index - 1]
+                if previous_block_relation.x == next_block_relation.x:
+                    screen.blit(self.body_vertical,block_rect) 
+                elif previous_block_relation.y == next_block_relation.y:
+                    screen.blit(self.body_horizontal,block_rect)
+                else:
+                    if previous_block_relation.x == -1 and next_block_relation.y == -1 or previous_block_relation.y == -1 and next_block_relation.x == -1:
+                        screen.blit(self.body_tl,block_rect)
+                    elif previous_block_relation.x == -1 and next_block_relation.y == 1 or previous_block_relation.y == 1 and next_block_relation.x == -1:
+                        screen.blit(self.body_bl,block_rect)
+                    elif previous_block_relation.x == 1 and next_block_relation.y == -1 or previous_block_relation.y == -1 and next_block_relation.x == 1:
+                        screen.blit(self.body_tr,block_rect)
+                    elif previous_block_relation.x == 1 and next_block_relation.y == 1 or previous_block_relation.y == 1 and next_block_relation.x == 1:
+                        screen.blit(self.body_br,block_rect)
+                #pygame.draw.rect(screen, (183,111,122), block_rect)
 
 
     def insert_head_graphics(self):
