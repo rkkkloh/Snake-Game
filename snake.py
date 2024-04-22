@@ -5,6 +5,7 @@ class Snake:
     def __init__(self):
         self.body = [Vector2(5,10), Vector2(6,10), Vector2(7,10)]
         self.direction = Vector2(1,0)
+        self.new_block = False
 
     def draw_snake(self):
         for block in self.body:
@@ -14,31 +15,52 @@ class Snake:
             pygame.draw.rect(screen, (183,111,122), block_rect)
 
     def move_snake(self):
-        body_copy = self.body[:1]
-        body_copy.insert(0, body_copy[0] + self.direction)
-        self.body = body_copy
+        if self.new_block == True:
+            body_copy = self.body[:]
+            body_copy.insert(0, body_copy[0] + self.direction)
+            self.body = body_copy
+            self.new_block = False
+        else:
+            body_copy = self.body[:-1]
+            body_copy.insert(0, body_copy[0] + self.direction)
+            self.body = body_copy
+
+    def add_block(self):
+        self.new_block = True
 
 class Fruit:
     def __init__(self):
-        self.x = random.randint(0, cell_number - 1)
-        self.y = random.randint(0, cell_number -1)
-        self.pos = Vector2(self.x,self.y)
+        self.create_new_fruit()
 
     def draw_fruit(self):
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
         pygame.draw.rect(screen,(126,166,114),fruit_rect)
+
+    def create_new_fruit(self):
+        self.x = random.randint(0, cell_number - 1)
+        self.y = random.randint(0, cell_number -1)
+        self.pos = Vector2(self.x,self.y)
 
 class Main:
     def __init__(self):
         self.snake = Snake()
         self.fruit = Fruit()
 
+
     def update(self):
         self.snake.move_snake()
+        self.check_collision()
 
     def draw_elements(self):
         self.fruit.draw_fruit()
         self.snake.draw_snake()
+
+    def check_collision(self):
+        if self.snake.body[0] == self.fruit.pos:
+            self.fruit.create_new_fruit()
+            print("yum")
+            self.snake.add_block()
+
 
 pygame.init()
 cell_size = 40
