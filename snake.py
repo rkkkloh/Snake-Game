@@ -4,7 +4,7 @@ from pygame.math import Vector2
 class Snake:
     def __init__(self):
         self.body = [Vector2(5,10), Vector2(4,10), Vector2(3,10)]
-        self.direction = Vector2(1,0)
+        self.direction = Vector2(0,0)
         self.new_block = False
 
         self.head_up = pygame.image.load('Graphics/head_up.png').convert_alpha()
@@ -89,6 +89,10 @@ class Snake:
     def play_eat_sound(self):
         self.eat_sound.play()
 
+    def restart(self):
+        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
+        self.direction = Vector2(0,0)
+
 class Rabbit:
     def __init__(self):
         self.create_new_rabbit()
@@ -130,12 +134,15 @@ class Main:
             self.game_over()
 
         for block in self.snake.body[1:]:
+            if block == self.fruit.pos:
+                self.fruit.randomize()
+
+        for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.game_over()
 
     def game_over(self):
-        pygame.quit()
-        sys.exit()
+        self.snake.restart()
 
     def draw_grass(self):
         grass_color = (167,209,61)
