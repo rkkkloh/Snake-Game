@@ -24,6 +24,7 @@ class Snake:
         self.body_tl = pygame.image.load('Graphics/body_tl.png').convert_alpha()
         self.body_br = pygame.image.load('Graphics/body_br.png').convert_alpha()
         self.body_bl = pygame.image.load('Graphics/body_bl.png').convert_alpha()
+        self.eat_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
     def draw_snake(self):
         self.insert_head_graphics()
@@ -54,7 +55,7 @@ class Snake:
                         screen.blit(self.body_tr,block_rect)
                     elif previous_block_relation.x == 1 and next_block_relation.y == 1 or previous_block_relation.y == 1 and next_block_relation.x == 1:
                         screen.blit(self.body_br,block_rect)
-                #pygame.draw.rect(screen, (183,111,122), block_rect)
+                    #pygame.draw.rect(screen, (183,111,122), block_rect)
 
 
     def insert_head_graphics(self):
@@ -85,6 +86,9 @@ class Snake:
     def add_block(self):
         self.new_block = True
 
+    def play_eat_sound(self):
+        self.eat_sound.play()
+
 class Rabbit:
     def __init__(self):
         self.create_new_rabbit()
@@ -110,13 +114,16 @@ class Main:
         self.check_collision()
 
     def draw_elements(self):
+        self.draw_grass()
         self.fruit.draw_rabbit()
         self.snake.draw_snake()
+        self.draw_score()
 
     def check_collision(self):
         if self.snake.body[0] == self.fruit.pos:
             self.fruit.create_new_rabbit()
             self.snake.add_block()
+            self.snake.play_eat_sound()
         elif self.snake.body[0].x < 0 or self.snake.body[0].x >= cell_number:
             self.game_over()
         elif self.snake.body[0].y < 0 or self.snake.body[0].y >= cell_number:
@@ -130,13 +137,43 @@ class Main:
         pygame.quit()
         sys.exit()
 
+    def draw_grass(self):
+        grass_color = (167,209,61)
+        for row in range(cell_number):
+            if row % 2 == 0: 
+                for col in range(cell_number):
+                    if col % 2 == 0:
+                        grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                        pygame.draw.rect(screen,grass_color,grass_rect)
+            else:
+                for col in range(cell_number):
+                    if col % 2 != 0:
+                        grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                        pygame.draw.rect(screen,grass_color,grass_rect)
+    
+    def draw_score(self):
+        score_text = str(len(self.snake.body) - 3)
+        score_surface = game_font.render(score_text,True,(56,74,12))
+        score_x = int(cell_size * cell_number - 60)
+        score_y = int(cell_size * cell_number - 40)
+        score_rect = score_surface.get_rect(center = (score_x,score_y))
+        screen.blit(score_surface,score_rect)
+        rabbit_rect = rabbit.get_rect(midright = (score_rect.left,score_rect.centery))
+        bg_rect = pygame.Rect(rabbit_rect.left,rabbit_rect.top,rabbit_rect.width + score_rect.width + 6,rabbit_rect.height)
 
+        pygame.draw.rect(screen,(167,209,61),bg_rect)
+        screen.blit(score_surface,score_rect)
+        screen.blit(rabbit,rabbit_rect)
+        pygame.draw.rect(screen,(56,74,12),bg_rect,2)
+
+pygame.mixer.pre_init(44100,-16,2,512)
 pygame.init()
 cell_size = 40
 cell_number = 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock = pygame.time.Clock()
 rabbit = pygame.image.load('Graphics/rabbit.png').convert_alpha()
+game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
 SCREEN_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(SCREEN_UPDATE, 150)
